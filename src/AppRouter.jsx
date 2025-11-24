@@ -8,6 +8,7 @@ import AttendanceScanner from './pages/AttendanceScanner';
 import Reports from './pages/Reports';
 import ManageStudents from './pages/ManageStudents';
 import Layout from './components/ui/Layout';
+import { Hash } from 'lucide-react';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { currentUser, loading } = useAuth();
@@ -49,7 +50,7 @@ export function AppRouter() {
   }
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<Login />} />
@@ -130,6 +131,6 @@ export function AppRouter() {
         {/* Fallback for unmatched routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
