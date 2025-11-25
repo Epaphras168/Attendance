@@ -85,20 +85,19 @@ const QRScanner = ({ onScan, isArrival, students }) => {
           {isArrival ? "Scan QR to Check In" : "Scan QR to Check Out"}
         </h2>
 
-      {!isScanning ? (
-        <Button
-          onClick={startScanner}
-          variant={isArrival ? "success" : "primary"}
-          fullWidth
-        >
-          {isArrival ? "Start Check-In Scanner" : "Start Check-Out Scanner"}
-        </Button>
-      ) : (
-        <Button onClick={stopScanner} variant="danger" fullWidth>
-          Stop Scanner
-        </Button>
-      )}
-
+        {!isScanning ? (
+          <Button
+            onClick={startScanner}
+            variant={isArrival ? "success" : "primary"}
+            fullWidth
+          >
+            {isArrival ? "Start Check-In Scanner" : "Start Check-Out Scanner"}
+          </Button>
+        ) : (
+          <Button onClick={stopScanner} variant="danger" fullWidth>
+            Stop Scanner
+          </Button>
+        )}
 
         <div
           id="qr-reader"
