@@ -32,29 +32,34 @@ const QRScanner = ({ onScan, isArrival, students }) => {
       false
     );
 
-const onScanSuccess = (decodedText) => {
-  const trimmed = decodedText.trim();
-  setLastResult(trimmed);
+    const onScanSuccess = (decodedText) => {
+      const trimmed = decodedText.trim();
 
-  if (!students || students.length === 0) {
-    console.warn("Students data not loaded yet, waiting...");
-    // Retry after a short delay
-    setTimeout(() => onScanSuccess(trimmed), 200); 
-    return;
-  }
+      // Ignore duplicate scans
+      if (trimmed === lastResult) return;
 
-  const student = students.find((s) => s.id === trimmed);
-  if (!student) {
-    console.warn("Student not found:", trimmed);
-    return;
-  }
+      setLastResult(trimmed);
 
-  qrScanner.clear().catch(() => {});
-  setIsScanning(false);
-  setScanner(null);
-  onScan(trimmed);
-};
+      // Check if students data is loaded
+      if (!students || students.length === 0) {
+        console.warn("Students data not loaded yet");
+        return;
+      }
 
+      // Check if scanned student exists
+      const student = students.find((s) => s.id === trimmed);
+      if (!student) {
+        console.warn("Student not found:", trimmed);
+        return;
+      }
+
+      // Stop scanner and call parent
+      qrScanner.clear().catch(() => {});
+      setIsScanning(false);
+      setScanner(null);
+
+      onScan(trimmed);
+    };
 
     qrScanner.render(onScanSuccess, (error) => {
       setQrError(error);
