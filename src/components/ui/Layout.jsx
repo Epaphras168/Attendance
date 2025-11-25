@@ -32,7 +32,7 @@ const Layout = ({ children }) => {
         ]
       : [
           { path: "/teacher", label: "Dashboard", icon: <HomeIcon className="w-5 h-5" /> },
-          { path: "/attendance-scanner", label: "Scan Attendance", icon: <ScanIcon className="w-5 h-5" /> },
+          // { path: "/attendance-scanner", label: "Scan Attendance", icon: <ScanIcon className="w-5 h-5" /> },
           { path: "/reports", label: "Reports", icon: <BarChart2Icon className="w-5 h-5" /> },
         ];
 
