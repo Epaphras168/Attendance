@@ -1,40 +1,68 @@
-
 import React, { useState, useEffect } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import Button from "./ui/Button";
 
-const QRScanner = ({ onScan, isArrival }) => {
+const QRScanner = ({ onScan, isArrival, students }) => {
   const [scanner, setScanner] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [lastResult, setLastResult] = useState(null);
-const [qrError, setQrError] = useState(null);
-  
+  const [qrError, setQrError] = useState(null);
+
+  // Cleanup on unmount
   useEffect(() => {
-    // Cleanup on unmount
     return () => {
       if (scanner) {
-        scanner.clear();
+        scanner.clear().catch(() => {});
       }
     };
   }, [scanner]);
 
   const startScanner = () => {
-    const qrScanner = new Html5QrcodeScanner("qr-reader", {
-      fps: 10,
-      qrbox: { width: 400, height: 400 }, // bigger box
-      rememberLastUsedCamera: true,
-      aspectRatio: 1.0, // ensures square view
-    }, false);
+    if (scanner) return; // Prevent multiple scanners
+
+    const qrScanner = new Html5QrcodeScanner(
+      "qr-reader",
+      {
+        fps: 10,
+        qrbox: { width: 400, height: 400 },
+        rememberLastUsedCamera: true,
+        aspectRatio: 1.0,
+        experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+      },
+      false
+    );
 
     const onScanSuccess = (decodedText) => {
+      const trimmed = decodedText.trim();
+
+      // Ignore duplicate scans
+      if (trimmed === lastResult) return;
+
+      setLastResult(trimmed);
+
+      // Check if students data is loaded
+      if (!students || students.length === 0) {
+        console.warn("Students data not loaded yet");
+        return;
+      }
+
+      // Check if scanned student exists
+      const student = students.find((s) => s.id === trimmed);
+      if (!student) {
+        console.warn("Student not found:", trimmed);
+        return;
+      }
+
+      // Stop scanner and call parent
+      qrScanner.clear().catch(() => {});
       setIsScanning(false);
-      setLastResult(decodedText);
-      qrScanner.clear();
-      onScan(decodedText);
+      setScanner(null);
+
+      onScan(trimmed);
     };
 
     qrScanner.render(onScanSuccess, (error) => {
-      setQrError(errorMessage);
+      setQrError(error);
       console.error("QR scan error:", error);
     });
 
@@ -44,7 +72,7 @@ const [qrError, setQrError] = useState(null);
 
   const stopScanner = () => {
     if (scanner) {
-      scanner.clear();
+      scanner.clear().catch(() => {});
       setScanner(null);
       setIsScanning(false);
     }
@@ -74,13 +102,19 @@ const [qrError, setQrError] = useState(null);
         <div
           id="qr-reader"
           className="mt-4 w-full"
-          style={{ height: "500px" }} // make the camera area taller
+          style={{ height: "500px" }}
         ></div>
 
         {lastResult && (
           <div className="mt-4 p-3 bg-gray-100 rounded-md">
             <p className="text-sm text-gray-600">Last Scanned QR Code:</p>
             <p className="font-mono text-xs break-all">{lastResult}</p>
+          </div>
+        )}
+
+        {qrError && (
+          <div className="mt-2 text-red-500 text-sm">
+            QR Scanner Error: {qrError}
           </div>
         )}
       </div>
